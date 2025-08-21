@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Productivity Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeInDown 1s ease;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            animation: fadeInUp 1s ease;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .timer-section {
+            text-align: center;
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .timer-modes {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .mode-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 25px;
+            background: #e9ecef;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tasks-section {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .task-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .task-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .task-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            animation: slideInLeft 0.5s ease;
+        }
+
+        .task-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+            background: #d4edda;
+        }
+
+        .task-item input[type="checkbox"] {
+            margin-right: 15px;
+            transform: scale(1.2);
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 1rem;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            animation: fadeInUp 1s ease;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .quote-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease;
+        }
+
+        .quote-text {
+            font-size: 1.3rem;
+            font-style: italic;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .quote-author {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .leaderboard {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .leaderboard h3 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .leader-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .leader-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .leader-rank {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #667eea;
+            width: 30px;
+        }
+
+        .leader-name {
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .leader-score {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 1s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .timer-display {
+                font-size: 2.5rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loginPage" style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #fbd3e9, #bbd2c5);">
+    <h1 style="color: #333; margin-bottom: 20px;">Welcome to TaskFlow</h1>
+    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;">
+        <input type="text" id="username" placeholder="Enter your name" style="padding: 10px; width: 250px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 20px;"><br>
+        <button onclick="login()" style="padding: 10px 20px; border: none; background: #667eea; color: white; border-radius: 8px; font-weight: bold; cursor: pointer;">Proceed</button>
+    </div>
+    <div class="container" id="dashboard" style="display: none;">
+  <!-- All your existing TaskFlow HTML remains here -->
+</div>
+
+</div>
+
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-clock"></i> TaskFlow</h1>
+            <p>Your Ultimate Productivity Companion</p>
+        </header>
+
+        <div class="dashboard">
+            <div class="card timer-section">
+                <h2><i class="fas fa-stopwatch"></i> Pomodoro Timer</h2>
+                <div class="timer-display" id="timerDisplay">25:00</div>
+                <div class="timer-modes">
+                    <button class="mode-btn active" data-time="25" data-mode="work">Work</button>
+                    <button class="mode-btn" data-time="5" data-mode="short">Short Break</button>
+                    <button class="mode-btn" data-time="15" data-mode="long">Long Break</button>
+                    
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="timer-controls">
+                    <button class="btn btn-primary" id="startBtn"><i class="fas fa-play"></i> Start</button>
+                    <button class="btn btn-secondary" id="pauseBtn"><i class="fas fa-pause"></i> Pause</button>
+                    <button class="btn btn-secondary" id="resetBtn"><i class="fas fa-refresh"></i> Reset</button>
+                </div>
+            </div>
+
+            <div class="card tasks-section">
+                <h2><i class="fas fa-tasks"></i> Task Manager</h2>
+                <div class="task-input">
+                    <input type="text" id="taskInput" placeholder="Add a new task...">
+                    <button class="btn btn-primary" id="addTaskBtn"><i class="fas fa-plus"></i> Add</button>
+                </div>
+                <ul class="task-list" id="taskList"></ul>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-circle" style="color: #28a745;"></i></div>
+                <span class="stat-value" id="completedSessions">0</span>
+                <div class="stat-label">Completed Sessions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-fire" style="color: #fd7e14;"></i></div>
+                <span class="stat-value" id="currentStreak">0</span>
+                <div class="stat-label">Current Streak</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-trophy" style="color: #ffc107;"></i></div>
+                <span class="stat-value" id="totalPoints">0</span>
+                <div class="stat-label">Total Points</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-list-check" style="color: #6f42c1;"></i></div>
+                <span class="stat-value" id="completedTasks">0</span>
+                <div class="stat-label">Tasks Completed</div>
+            </div>
+        </div>
+
+        <div class="quote-section">
+            <div class="quote-text" id="quoteText">"The secret of getting ahead is getting started."</div>
+            <div class="quote-author" id="quoteAuthor">- Mark Twain</div>
+        </div>
+
+        <div class="leaderboard">
+            <h3><i class="fas fa-crown"></i> Daily Leaderboard</h3>
+            <div class="leader-item">
+                <span class="leader-rank">#1</span>
+                <span class="leader-name">Alex Chen</span>
+                <span class="leader-score">850 pts</span>
+            </div>
+            <div class="leader-item">
+                <span class="leader-rank">#2</span>
+                <span class="leader-name">Sarah Johnson</span>
+                <span class="leader-score">720 pts</span>
+            </div>
+            <div class="leader-item">
+                <span class="leader-rank">#3</span>
+                <span class="leader-name">Michael Roberts</span>
+                <span class="leader-score">680 pts</span>
+            </div>
+            <div class="leader-item">
+                <span class="leader-rank">#4</span>
+                <span class="leader-name">You</span>
+                <span class="leader-score" id="userScore">0 pts</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function login() {
+    const username = document.getElementById('username').value.trim();
+    if (username) {
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        sessionStorage.setItem('taskflowUser', username);
+    } else {
+        alert("Please enter your name to continue.");
+    }
+}
+
+        class ProductivityTracker {
+            constructor() {
+                this.timerMinutes = 25;
+                this.timerSeconds = 0;
+                this.isRunning = false;
+                this.timerInterval = null;
+                this.currentMode = 'work';
+                this.totalTime = 25 * 60;
+                this.timeLeft = this.totalTime;
+                
+                this.stats = {
+                    completedSessions: 0,
+                    currentStreak: 0,
+                    totalPoints: 0,
+                    completedTasks: 0
+                };
+                
+                this.tasks = [];
+                this.quotes = [
+                    { text: "The secret of getting ahead is getting started.", author: "A4-IT Batch" },
+                    { text: "Your limitation—it's only your imagination.", author: "A4-IT Batch" },
+                    { text: "Great things never come from comfort zones.", author: "A4-IT Batch" },
+                    { text: "Dream it. Wish it. Do it.", author: "A4-IT Batch" },
+                    { text: "Success doesn't just find you. You have to go out and get it.", author: "A4-IT Batch" },
+                    { text: "The harder you work for something, the greater you'll feel when you achieve it.", author: "A4-IT Batch" },
+                    { text: "Dream bigger. Do bigger.", author: "A4-IT Batch" },
+                    { text: "Don't stop when you're tired. Stop when you're done.", author: "A4-IT Batch" },
+                    { text: "Wake up with determination. Go to bed with satisfaction.", author: "A4-IT Batch" },
+                    { text: "Do something today that your future self will thank you for.", author: "A4-IT Batch" }
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.loadData();
+                this.updateDisplay();
+                this.updateStats();
+                this.displayRandomQuote();
+                this.setupEventListeners();
+                this.renderTasks();
+            }
+            
+            setupEventListeners() {
+                document.getElementById('startBtn').addEventListener('click', () => this.startTimer());
+                document.getElementById('pauseBtn').addEventListener('click', () => this.pauseTimer());
+                document.getElementById('resetBtn').addEventListener('click', () => this.resetTimer());
+                
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.switchMode(e.target));
+                });
+                
+                document.getElementById('addTaskBtn').addEventListener('click', () => this.addTask());
+                document.getElementById('taskInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addTask();
+                });
+            }
+            
+            startTimer() {
+                if (!this.isRunning) {
+                    this.isRunning = true;
+                    document.getElementById('startBtn').innerHTML = '<i class="fas fa-play"></i> Running...';
+                    document.getElementById('startBtn').classList.add('pulse');
+                    
+                    this.timerInterval = setInterval(() => {
+                        this.timeLeft--;
+                        this.updateDisplay();
+                        this.updateProgress();
+                        
+                        if (this.timeLeft <= 0) {
+                            this.completeSession();
+                        }
+                    }, 1000);
+                    
+                    this.playSound('start');
+                }
+            }
+            
+            pauseTimer() {
+                this.isRunning = false;
+                clearInterval(this.timerInterval);
+                document.getElementById('startBtn').innerHTML = '<i class="fas fa-play"></i> Start';
+                document.getElementById('startBtn').classList.remove('pulse');
+            }
+            
+            resetTimer() {
+                this.pauseTimer();
+                this.timeLeft = this.totalTime;
+                this.updateDisplay();
+                this.updateProgress();
+            }
+            
+            completeSession() {
+                this.pauseTimer();
+                this.stats.completedSessions++;
+                this.stats.currentStreak++;
+                
+                if (this.currentMode === 'work') {
+                    this.stats.totalPoints += 25;
+                } else {
+                    this.stats.totalPoints += 5;
+                }
+                
+                this.updateStats();
+                this.displayRandomQuote();
+                this.saveData();
+                this.playSound('complete');
+                
+                // Show celebration
+                this.showCelebration();
+                
+                // Auto switch to break mode
+                if (this.currentMode === 'work') {
+                    document.querySelector('[data-mode="short"]').click();
+                } else {
+                    document.querySelector('[data-mode="work"]').click();
+                }
+            }
+            
+            switchMode(button) {
+                document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                this.timerMinutes = parseInt(button.dataset.time);
+                this.currentMode = button.dataset.mode;
+                this.totalTime = this.timerMinutes * 60;
+                this.timeLeft = this.totalTime;
+                
+                this.resetTimer();
+            }
+            
+            updateDisplay() {
+                const minutes = Math.floor(this.timeLeft / 60);
+                const seconds = this.timeLeft % 60;
+                document.getElementById('timerDisplay').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            updateProgress() {
+                const progress = ((this.totalTime - this.timeLeft) / this.totalTime) * 100;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+            }
+            
+            updateStats() {
+                document.getElementById('completedSessions').textContent = this.stats.completedSessions;
+                document.getElementById('currentStreak').textContent = this.stats.currentStreak;
+                document.getElementById('totalPoints').textContent = this.stats.totalPoints;
+                document.getElementById('completedTasks').textContent = this.stats.completedTasks;
+                document.getElementById('userScore').textContent = `${this.stats.totalPoints} pts`;
+            }
+            
+            addTask() {
+                const taskInput = document.getElementById('taskInput');
+                const taskText = taskInput.value.trim();
+                
+                if (taskText) {
+                    const task = {
+                        id: Date.now(),
+                        text: taskText,
+                        completed: false
+                    };
+                    
+                    this.tasks.push(task);
+                    this.renderTasks();
+                    this.saveData();
+                    taskInput.value = '';
+                }
+            }
+            
+            renderTasks() {
+                const taskList = document.getElementById('taskList');
+                taskList.innerHTML = '';
+                
+                this.tasks.forEach(task => {
+                    const li = document.createElement('li');
+                    li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                    
+                    li.innerHTML = `
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                               onchange="tracker.toggleTask(${task.id})">
+                        <span class="task-text">${task.text}</span>
+                        <button class="delete-btn" onclick="tracker.deleteTask(${task.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    
+                    taskList.appendChild(li);
+                });
+            }
+            
+            toggleTask(id) {
+                const task = this.tasks.find(t => t.id === id);
+                if (task) {
+                    task.completed = !task.completed;
+                    if (task.completed) {
+                        this.stats.completedTasks++;
+                        this.stats.totalPoints += 10;
+                        this.updateStats();
+                    } else {
+                        this.stats.completedTasks = Math.max(0, this.stats.completedTasks - 1);
+                        this.stats.totalPoints = Math.max(0, this.stats.totalPoints - 10);
+                        this.updateStats();
+                    }
+                    this.renderTasks();
+                    this.saveData();
+                }
+            }
+            
+            deleteTask(id) {
+                const taskIndex = this.tasks.findIndex(t => t.id === id);
+                if (taskIndex > -1) {
+                    if (this.tasks[taskIndex].completed) {
+                        this.stats.completedTasks = Math.max(0, this.stats.completedTasks - 1);
+                        this.stats.totalPoints = Math.max(0, this.stats.totalPoints - 10);
+                        this.updateStats();
+                    }
+                    this.tasks.splice(taskIndex, 1);
+                    this.renderTasks();
+                    this.saveData();
+                }
+            }
+            
+            displayRandomQuote() {
+                const randomQuote = this.quotes[Math.floor(Math.random() * this.quotes.length)];
+                document.getElementById('quoteText').textContent = `"${randomQuote.text}"`;
+                document.getElementById('quoteAuthor').textContent = `- ${randomQuote.author}`;
+            }
+            
+            showCelebration() {
+                const celebration = document.createElement('div');
+                celebration.innerHTML = '🎉 Session Complete! Well done! 🎉';
+                celebration.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(45deg, #667eea, #764ba2);
+                    color: white;
+                    padding: 20px 40px;
+                    border-radius: 15px;
+                    font-size: 1.5rem;
+                    font-weight: bold;
+                    z-index: 1000;
+                    animation: fadeInUp 0.5s ease;
+                `;
+                
+                document.body.appendChild(celebration);
+                setTimeout(() => {
+                    document.body.removeChild(celebration);
+                }, 3000);
+            }
+            
+            playSound(type) {
+                // Create audio context for sound alerts
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                if (type === 'start') {
+                    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                } else if (type === 'complete') {
+                    // Play a success sound sequence
+                    [440, 554, 659].forEach((freq, i) => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.setValueAtTime(freq, audioContext.currentTime + i * 0.2);
+                        gain.gain.setValueAtTime(0.1, audioContext.currentTime + i * 0.2);
+                        osc.start(audioContext.currentTime + i * 0.2);
+                        osc.stop(audioContext.currentTime + i * 0.2 + 0.2);
+                    });
+                }
+            }
+            
+            saveData() {
+                const data = {
+                    stats: this.stats,
+                    tasks: this.tasks
+                };
+                // Using session storage instead of localStorage for demo
+                sessionStorage.setItem('productivityData', JSON.stringify(data));
+            }
+            
+            loadData() {
+                const data = sessionStorage.getItem('productivityData');
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    this.stats = { ...this.stats, ...parsed.stats };
+                    this.tasks = parsed.tasks || [];
+                }
+            }
+        }
+        
+        // Initialize the app
+        const tracker = new ProductivityTracker();
+    </script>
+</body>
+</html>
